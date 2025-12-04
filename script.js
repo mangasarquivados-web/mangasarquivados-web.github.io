@@ -1,392 +1,421 @@
-// Adicione esta função no início do script.js
-function processVideoUrl(url) {
-    // Se for um link do Google Drive
-    if (url.includes('drive.google.com')) {
-        // Extrair o ID do arquivo
-        const match = url.match(/\/d\/([^\/]+)/);
-        if (match && match[1]) {
-            return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+// Dados dos vídeos (com links que funcionam!)
+const defaultVideos = [
+    {
+        id: 1,
+        title: "Tutorial de HTML para Iniciantes",
+        description: "Aprenda HTML do zero neste tutorial completo para iniciantes.",
+        thumbnail: "https://img.youtube.com/vi/4dQtz1PpY9A/maxresdefault.jpg",
+        videoUrl: "https://www.youtube.com/embed/4dQtz1PpY9A",
+        duration: "15:30",
+        views: "1.2M",
+        date: "2024-01-15",
+        category: "Tutorial",
+        type: "youtube"
+    },
+    {
+        id: 2,
+        title: "Natureza Relaxante - 4K",
+        description: "Paisagens naturais incríveis para relaxar e estudar.",
+        thumbnail: "https://img.youtube.com/vi/1-xGerv5FOk/maxresdefault.jpg",
+        videoUrl: "https://www.youtube.com/embed/1-xGerv5FOk",
+        duration: "1:23:45",
+        views: "5.7M",
+        date: "2024-01-10",
+        category: "Natureza",
+        type: "youtube"
+    },
+    {
+        id: 3,
+        title: "Música para Programar",
+        description: "Playlist com músicas ideais para focar na programação.",
+        thumbnail: "https://img.youtube.com/vi/2OEL4PPGNVw/maxresdefault.jpg",
+        videoUrl: "https://www.youtube.com/embed/2OEL4PPGNVw",
+        duration: "2:15:30",
+        views: "3.4M",
+        date: "2024-01-05",
+        category: "Música",
+        type: "youtube"
+    },
+    {
+        id: 4,
+        title: "Exercícios em Casa",
+        description: "Rotina completa de exercícios para fazer em casa.",
+        thumbnail: "https://img.youtube.com/vi/MLrA6wP5T5U/maxresdefault.jpg",
+        videoUrl: "https://www.youtube.com/embed/MLrA6wP5T5U",
+        duration: "25:45",
+        views: "890K",
+        date: "2023-12-20",
+        category: "Fitness",
+        type: "youtube"
+    }
+];
+
+// Gerenciamento de vídeos
+class VideoManager {
+    constructor() {
+        this.videos = this.loadVideosFromStorage();
+        if (this.videos.length === 0) {
+            this.videos = [...defaultVideos];
+            this.saveVideosToStorage();
         }
+    }
+
+    loadVideosFromStorage() {
+        try {
+            const saved = localStorage.getItem('userVideos');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            console.error('Erro ao carregar vídeos:', e);
+            return [];
+        }
+    }
+
+    saveVideosToStorage() {
+        try {
+            localStorage.setItem('userVideos', JSON.stringify(this.videos));
+        } catch (e) {
+            console.error('Erro ao salvar vídeos:', e);
+        }
+    }
+
+    addVideo(videoData) {
+        const newVideo = {
+            id: Date.now(),
+            ...videoData,
+            views: "0",
+            date: new Date().toISOString().split('T')[0]
+        };
+        this.videos.unshift(newVideo);
+        this.saveVideosToStorage();
+        return newVideo;
+    }
+
+    getVideoById(id) {
+        return this.videos.find(video => video.id == id);
+    }
+
+    getAllVideos() {
+        return [...this.videos];
+    }
+
+    searchVideos(query) {
+        if (!query.trim()) return this.getAllVideos();
+        
+        const searchTerm = query.toLowerCase();
+        return this.videos.filter(video => 
+            video.title.toLowerCase().includes(searchTerm) ||
+            video.description.toLowerCase().includes(searchTerm) ||
+            video.category.toLowerCase().includes(searchTerm)
+        );
+    }
+}
+
+// Inicializar gerenciador
+const videoManager = new VideoManager();
+
+// Funções da página inicial
+function loadVideos() {
+    const container = document.getElementById('videoContainer');
+    const loading = document.getElementById('loading');
+    const noVideos = document.getElementById('noVideos');
+    
+    if (!container) return;
+    
+    container.innerHTML = '';
+    loading.style.display = 'block';
+    noVideos.style.display = 'none';
+    
+    // Simular carregamento
+    setTimeout(() => {
+        const videos = videoManager.getAllVideos();
+        
+        if (videos.length === 0) {
+            loading.style.display = 'none';
+            noVideos.style.display = 'block';
+            return;
+        }
+        
+        videos.forEach(video => {
+            const videoCard = createVideoCard(video);
+            container.appendChild(videoCard);
+        });
+        
+        loading.style.display = 'none';
+    }, 500);
+}
+
+function createVideoCard(video) {
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    card.dataset.id = video.id;
+    
+    card.innerHTML = `
+        <div class="video-thumbnail">
+            <img src="${video.thumbnail}" alt="${video.title}" 
+                 onerror="this.src='https://via.placeholder.com/300x180/2f3542/ffffff?text=Thumbnail'">
+            <div class="video-duration">${video.duration}</div>
+        </div>
+        <div class="video-info">
+            <h3 class="video-title">${video.title}</h3>
+            <div class="video-meta">
+                <span>${video.views} visualizações</span>
+                <span>${formatDate(video.date)}</span>
+            </div>
+        </div>
+    `;
+    
+    card.addEventListener('click', () => {
+        watchVideo(video.id);
+    });
+    
+    return card;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return 'Ontem';
+    if (diffDays < 7) return `Há ${diffDays} dias`;
+    if (diffDays < 30) return `Há ${Math.floor(diffDays / 7)} semanas`;
+    return `Há ${Math.floor(diffDays / 30)} meses`;
+}
+
+function watchVideo(videoId) {
+    // Salvar no sessionStorage para a página do player
+    sessionStorage.setItem('currentVideoId', videoId);
+    window.location.href = `player.html?id=${videoId}`;
+}
+
+function searchVideos() {
+    const input = document.getElementById('searchInput');
+    if (!input) return;
+    
+    const query = input.value;
+    const videos = videoManager.searchVideos(query);
+    const container = document.getElementById('videoContainer');
+    const noVideos = document.getElementById('noVideos');
+    
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (videos.length === 0) {
+        noVideos.style.display = 'block';
+        return;
+    }
+    
+    noVideos.style.display = 'none';
+    videos.forEach(video => {
+        const videoCard = createVideoCard(video);
+        container.appendChild(videoCard);
+    });
+}
+
+function showMyVideos() {
+    const videos = videoManager.getAllVideos();
+    const userVideos = videos.filter(v => v.type === 'user');
+    
+    const container = document.getElementById('videoContainer');
+    const noVideos = document.getElementById('noVideos');
+    
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (userVideos.length === 0) {
+        noVideos.style.display = 'block';
+        noVideos.innerHTML = `
+            <i class="fas fa-video-slash"></i>
+            <h3>Você ainda não tem vídeos</h3>
+            <button class="btn-primary" onclick="window.location.href='upload.html'">
+                <i class="fas fa-plus"></i> Adicionar Primeiro Vídeo
+            </button>
+        `;
+        return;
+    }
+    
+    noVideos.style.display = 'none';
+    userVideos.forEach(video => {
+        const videoCard = createVideoCard(video);
+        container.appendChild(videoCard);
+    });
+}
+
+// Funções da página do player
+function loadPlayerPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id') || sessionStorage.getItem('currentVideoId');
+    
+    if (!videoId) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    const video = videoManager.getVideoById(videoId);
+    
+    if (!video) {
+        document.body.innerHTML = `
+            <div style="text-align: center; padding: 50px;">
+                <h2>Vídeo não encontrado</h2>
+                <button onclick="window.location.href='index.html'" class="btn-primary">
+                    Voltar para a página inicial
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Atualizar a página com os dados do vídeo
+    document.title = `${video.title} - MeuVideoSite`;
+    
+    const player = document.getElementById('videoPlayer');
+    const titleElement = document.getElementById('videoTitle');
+    const descElement = document.getElementById('videoDescription');
+    const viewsElement = document.getElementById('videoViews');
+    const dateElement = document.getElementById('videoDate');
+    
+    if (player) {
+        if (video.type === 'youtube' || video.videoUrl.includes('youtube.com/embed')) {
+            // YouTube
+            player.innerHTML = `
+                <iframe 
+                    src="${video.videoUrl}?autoplay=1&rel=0" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            `;
+        } else if (video.videoUrl.includes('drive.google.com')) {
+            // Google Drive
+            const driveId = extractDriveId(video.videoUrl);
+            if (driveId) {
+                player.innerHTML = `
+                    <iframe 
+                        src="https://drive.google.com/file/d/${driveId}/preview" 
+                        frameborder="0" 
+                        allow="autoplay"
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
+        } else {
+            // Vídeo direto
+            player.innerHTML = `
+                <video controls autoplay style="width:100%; height:100%;">
+                    <source src="${video.videoUrl}" type="video/mp4">
+                    Seu navegador não suporta vídeos HTML5.
+                </video>
+            `;
+        }
+    }
+    
+    // Atualizar informações do vídeo
+    if (titleElement) titleElement.textContent = video.title;
+    if (descElement) descElement.textContent = video.description;
+    if (viewsElement) viewsElement.textContent = `${video.views} visualizações`;
+    if (dateElement) dateElement.textContent = `Publicado em ${formatDate(video.date)}`;
+    
+    // Carregar vídeos relacionados
+    loadRelatedVideos(video.id);
+}
+
+function extractDriveId(url) {
+    const match = url.match(/\/d\/([^\/]+)/);
+    return match ? match[1] : null;
+}
+
+function loadRelatedVideos(currentVideoId) {
+    const container = document.getElementById('relatedVideos');
+    if (!container) return;
+    
+    const videos = videoManager.getAllVideos()
+        .filter(v => v.id != currentVideoId)
+        .slice(0, 4);
+    
+    container.innerHTML = '';
+    
+    videos.forEach(video => {
+        const videoCard = createVideoCard(video);
+        container.appendChild(videoCard);
+    });
+}
+
+// Funções da página de upload
+function loadUploadPage() {
+    const form = document.getElementById('uploadForm');
+    const successMsg = document.getElementById('successMessage');
+    
+    if (!form) return;
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const title = document.getElementById('videoTitle').value;
+        const description = document.getElementById('videoDescription').value;
+        const category = document.getElementById('videoCategory').value;
+        const thumbnail = document.getElementById('videoThumbnail').value || 
+                         'https://via.placeholder.com/300x180/2f3542/ffffff?text=Sem+Thumbnail';
+        let videoUrl = document.getElementById('videoUrl').value;
+        
+        // Converter URL do YouTube se necessário
+        if (videoUrl.includes('youtube.com/watch')) {
+            videoUrl = convertYoutubeUrl(videoUrl);
+        }
+        
+        const videoData = {
+            title,
+            description,
+            category,
+            thumbnail,
+            videoUrl,
+            duration: "10:00",
+            type: 'user'
+        };
+        
+        const newVideo = videoManager.addVideo(videoData);
+        
+        // Mostrar mensagem de sucesso
+        if (successMsg) {
+            successMsg.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <strong>Vídeo adicionado com sucesso!</strong>
+                <p>"${title}" foi adicionado à sua biblioteca.</p>
+            `;
+            successMsg.style.display = 'block';
+            
+            // Redirecionar após 2 segundos
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+        
+        // Limpar formulário
+        form.reset();
+    });
+}
+
+function convertYoutubeUrl(url) {
+    // Converter de https://youtube.com/watch?v=ID para https://youtube.com/embed/ID
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}`;
     }
     return url;
 }
 
-// Modifique a função initUploadPage (ou onde processa uploads):
-function initUploadPage() {
-    const uploadForm = document.getElementById('uploadForm');
-    const successMessage = document.getElementById('successMessage');
-    
-    uploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const title = document.getElementById('title').value;
-        const description = document.getElementById('description').value;
-        const category = document.getElementById('category').value;
-        const thumbnail = document.getElementById('thumbnail').value || 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-        let videoUrl = document.getElementById('videoUrl').value;
-        
-        // Processar URL do Google Drive
-        videoUrl = processVideoUrl(videoUrl);
-        
-        // Resto do código permanece o mesmo...
-    });
-}
-// Dados dos vídeos (simulando um banco de dados)
-let videos = [
-    {
-        id: 1,
-        title: "Tutorial de GitHub Pages para Iniciantes",
-        description: "Aprenda a hospedar seu site gratuitamente no GitHub Pages passo a passo.",
-        thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        videoUrl: "https://www.youtube.com/embed/8hrJ4oN1u_8",
-        duration: "15:30",
-        views: "1.2K",
-        date: "Há 3 dias",
-        category: "Tutorial"
-    },
-    {
-        id: 2,
-        title: "HTML, CSS e JavaScript - Fundamentos",
-        description: "Conheça os três pilares do desenvolvimento web frontend.",
-        thumbnail: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        videoUrl: "https://www.youtube.com/embed/i6L2jLHV9j8",
-        duration: "22:45",
-        views: "3.4K",
-        date: "Há 1 semana",
-        category: "Programação"
-    },
-    {
-        id: 3,
-        title: "Paisagens Naturais Incríveis 4K",
-        description: "Relaxe com essas imagens deslumbrantes da natureza.",
-        thumbnail: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        videoUrl: "https://www.youtube.com/embed/1-xGerv5FOk",
-        duration: "8:15",
-        views: "5.7K",
-        date: "Há 2 semanas",
-        category: "Natureza"
-    },
-    {
-        id: 4,
-        title: "Receita Fácil de Bolo de Chocolate",
-        description: "Aprenda a fazer um delicioso bolo de chocolate em casa.",
-        thumbnail: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        videoUrl: "https://www.youtube.com/embed/17ghJ8Srsmo",
-        duration: "12:22",
-        views: "2.1K",
-        date: "Há 1 mês",
-        category: "Culinária"
-    },
-    {
-        id: 5,
-        title: "Exercícios em Casa sem Equipamento",
-        description: "Mantenha-se em forma com essa rotina de exercícios em casa.",
-        thumbnail: "https://images.unsplash.com/photo-1549060279-7e168fce7090?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        videoUrl: "https://www.youtube.com/embed/MLrA6wP5T5U",
-        duration: "18:40",
-        views: "4.3K",
-        date: "Há 2 meses",
-        category: "Fitness"
-    },
-    {
-        id: 6,
-        title: "Como Tocar Violão - Aula 1",
-        description: "Primeiros passos para aprender a tocar violão.",
-        thumbnail: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        videoUrl: "https://www.youtube.com/embed/C6CeA6hDg_M",
-        duration: "25:10",
-        views: "6.8K",
-        date: "Há 3 meses",
-        category: "Música"
-    }
-];
-
-// Carregar vídeos quando a página carregar
+// Inicialização baseada na página atual
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar em qual página estamos
     const path = window.location.pathname;
     const page = path.split('/').pop();
     
-    if (page === 'index.html' || page === '' || page.endsWith('.github.io')) {
-        // Página principal
-        initHomePage();
+    if (page === 'index.html' || page === '' || page.includes('.github.io')) {
+        // Página inicial já é carregada automaticamente
     } else if (page === 'player.html') {
-        // Página do player
-        initPlayerPage();
+        loadPlayerPage();
     } else if (page === 'upload.html') {
-        // Página de upload
-        initUploadPage();
+        loadUploadPage();
     }
 });
-
-// Função para a página inicial
-function initHomePage() {
-    const videoGrid = document.getElementById('videoGrid');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const myVideosBtn = document.getElementById('myVideosBtn');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const emptyState = document.getElementById('emptyState');
-    
-    // Carregar vídeos do localStorage se existirem
-    const savedVideos = localStorage.getItem('userVideos');
-    if (savedVideos) {
-        const userVideos = JSON.parse(savedVideos);
-        videos = [...videos, ...userVideos];
-    }
-    
-    // Renderizar vídeos
-    renderVideos(videos);
-    
-    // Evento de busca
-    searchBtn.addEventListener('click', performSearch);
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') performSearch();
-    });
-    
-    // Evento para "Meus vídeos"
-    myVideosBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const userVideos = JSON.parse(localStorage.getItem('userVideos') || '[]');
-        if (userVideos.length > 0) {
-            renderVideos(userVideos);
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-        } else {
-            alert('Você ainda não tem vídeos. Faça upload primeiro!');
-            window.location.href = 'upload.html';
-        }
-    });
-    
-    // Eventos para filtros
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            
-            const filter = this.textContent;
-            let filteredVideos = [...videos];
-            
-            if (filter === 'Mais recentes') {
-                filteredVideos.sort((a, b) => b.id - a.id);
-            } else if (filter === 'Mais vistos') {
-                filteredVideos.sort((a, b) => {
-                    const viewsA = parseFloat(a.views.replace('K', '000').replace(' visualizações', ''));
-                    const viewsB = parseFloat(b.views.replace('K', '000').replace(' visualizações', ''));
-                    return viewsB - viewsA;
-                });
-            }
-            
-            renderVideos(filteredVideos);
-        });
-    });
-    
-    function performSearch() {
-        const query = searchInput.value.toLowerCase();
-        if (!query) {
-            renderVideos(videos);
-            emptyState.style.display = 'none';
-            return;
-        }
-        
-        const filtered = videos.filter(video => 
-            video.title.toLowerCase().includes(query) || 
-            video.description.toLowerCase().includes(query) ||
-            video.category.toLowerCase().includes(query)
-        );
-        
-        renderVideos(filtered);
-        
-        if (filtered.length === 0) {
-            emptyState.style.display = 'block';
-        } else {
-            emptyState.style.display = 'none';
-        }
-    }
-    
-    function renderVideos(videosToRender) {
-        videoGrid.innerHTML = '';
-        
-        if (videosToRender.length === 0) {
-            emptyState.style.display = 'block';
-            return;
-        }
-        
-        emptyState.style.display = 'none';
-        
-        videosToRender.forEach(video => {
-            const videoCard = document.createElement('div');
-            videoCard.className = 'video-card';
-            videoCard.innerHTML = `
-                <div class="video-thumbnail">
-                    <img src="${video.thumbnail}" alt="${video.title}" loading="lazy">
-                    <div class="video-duration">${video.duration}</div>
-                </div>
-                <div class="video-info">
-                    <h3 class="video-title">${video.title}</h3>
-                    <div class="video-meta">
-                        <span>${video.views} visualizações</span>
-                        <span>${video.date}</span>
-                    </div>
-                </div>
-            `;
-            
-            videoCard.addEventListener('click', () => {
-                // Salvar o vídeo selecionado no localStorage para a página do player
-                localStorage.setItem('selectedVideo', JSON.stringify(video));
-                window.location.href = `player.html?id=${video.id}`;
-            });
-            
-            videoGrid.appendChild(videoCard);
-        });
-    }
-}
-
-// Função para a página do player
-function initPlayerPage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const videoId = urlParams.get('id');
-    
-    // Buscar vídeo selecionado
-    let video;
-    const savedVideo = localStorage.getItem('selectedVideo');
-    
-    if (savedVideo) {
-        video = JSON.parse(savedVideo);
-    } else {
-        // Fallback: buscar pelo ID
-        video = videos.find(v => v.id == videoId) || videos[0];
-    }
-    
-    // Atualizar a página com os dados do vídeo
-    document.title = `${video.title} - Meu YouTube Pessoal`;
-    
-    const videoPlayer = document.getElementById('mainVideo');
-    const videoTitle = document.getElementById('videoTitle');
-    const videoDescription = document.getElementById('videoDescription');
-    const videoViews = document.getElementById('videoViews');
-    const videoDate = document.getElementById('videoDate');
-    
-    if (videoPlayer) {
-        // Usar iframe para incorporar vídeos do YouTube/Vimeo
-        if (video.videoUrl.includes('youtube.com/embed') || video.videoUrl.includes('vimeo.com')) {
-            videoPlayer.innerHTML = `<iframe src="${video.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-        } else {
-            // Para vídeos diretos (MP4)
-            videoPlayer.innerHTML = `<video controls src="${video.videoUrl}" poster="${video.thumbnail}"></video>`;
-        }
-    }
-    
-    if (videoTitle) videoTitle.textContent = video.title;
-    if (videoDescription) videoDescription.textContent = video.description;
-    if (videoViews) videoViews.textContent = `${video.views} visualizações`;
-    if (videoDate) videoDate.textContent = video.date;
-    
-    // Renderizar vídeos relacionados
-    const relatedGrid = document.getElementById('relatedVideos');
-    if (relatedGrid) {
-        const relatedVideos = videos.filter(v => v.id !== video.id).slice(0, 4);
-        relatedVideos.forEach(relatedVideo => {
-            const videoCard = document.createElement('div');
-            videoCard.className = 'video-card';
-            videoCard.innerHTML = `
-                <div class="video-thumbnail">
-                    <img src="${relatedVideo.thumbnail}" alt="${relatedVideo.title}" loading="lazy">
-                    <div class="video-duration">${relatedVideo.duration}</div>
-                </div>
-                <div class="video-info">
-                    <h3 class="video-title">${relatedVideo.title}</h3>
-                    <div class="video-meta">
-                        <span>${relatedVideo.views}</span>
-                        <span>${relatedVideo.date}</span>
-                    </div>
-                </div>
-            `;
-            
-            videoCard.addEventListener('click', () => {
-                localStorage.setItem('selectedVideo', JSON.stringify(relatedVideo));
-                window.location.href = `player.html?id=${relatedVideo.id}`;
-            });
-            
-            relatedGrid.appendChild(videoCard);
-        });
-    }
-    
-    // Botão voltar
-    const backBtn = document.querySelector('.back-btn');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            window.history.back();
-        });
-    }
-}
-
-// Função para a página de upload
-function initUploadPage() {
-    const uploadForm = document.getElementById('uploadForm');
-    const successMessage = document.getElementById('successMessage');
-    
-    uploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const title = document.getElementById('title').value;
-        const description = document.getElementById('description').value;
-        const category = document.getElementById('category').value;
-        const thumbnail = document.getElementById('thumbnail').value || 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-        const videoUrl = document.getElementById('videoUrl').value;
-        
-        // Criar novo vídeo
-        const newVideo = {
-            id: Date.now(), // ID único baseado no timestamp
-            title,
-            description,
-            thumbnail,
-            videoUrl,
-            duration: "10:00", // Duração padrão
-            views: "0",
-            date: "Agora mesmo",
-            category
-        };
-        
-        // Salvar no localStorage
-        let userVideos = JSON.parse(localStorage.getItem('userVideos') || '[]');
-        userVideos.push(newVideo);
-        localStorage.setItem('userVideos', JSON.stringify(userVideos));
-        
-        // Mostrar mensagem de sucesso
-        successMessage.style.display = 'block';
-        successMessage.innerHTML = `
-            <i class="fas fa-check-circle"></i>
-            <strong>Vídeo enviado com sucesso!</strong>
-            <p>Seu vídeo "${title}" está disponível na sua biblioteca.</p>
-        `;
-        
-        // Limpar formulário
-        uploadForm.reset();
-        
-        // Redirecionar após 3 segundos
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 3000);
-    });
-    
-    // Botão cancelar
-    const cancelBtn = document.getElementById('cancelBtn');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
-    }
-}
-
-// Função para simular views (a cada visualização, aumentar contador)
-function incrementViews(videoId) {
-    let userVideos = JSON.parse(localStorage.getItem('userVideos') || '[]');
-    const videoIndex = userVideos.findIndex(v => v.id == videoId);
-    
-    if (videoIndex !== -1) {
-        let views = parseInt(userVideos[videoIndex].views) || 0;
-        userVideos[videoIndex].views = (views + 1).toString();
-        localStorage.setItem('userVideos', JSON.stringify(userVideos));
-    }
-}
