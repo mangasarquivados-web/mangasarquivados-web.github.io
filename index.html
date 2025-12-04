@@ -3,97 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu YouTube Pessoal</title>
+    <title>Meu Site de Vídeos</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
+    <!-- Header -->
     <header>
-        <div class="logo">
-            <i class="fab fa-youtube"></i>
-            <span>Meu Vídeo Channel</span>
+        <div class="logo" onclick="window.location.href='index.html'">
+            <i class="fas fa-play-circle"></i>
+            <span>MeuVideoSite</span>
         </div>
         
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Pesquisar vídeos...">
-            <button id="searchBtn"><i class="fas fa-search"></i></button>
+            <input type="text" id="searchInput" placeholder="Buscar vídeos...">
+            <button onclick="searchVideos()"><i class="fas fa-search"></i></button>
         </div>
         
         <div class="user-actions">
             <button class="upload-btn" onclick="window.location.href='upload.html'">
-                <i class="fas fa-upload"></i>
+                <i class="fas fa-cloud-upload-alt"></i>
                 <span>Upload</span>
             </button>
-            <div class="user-avatar">
-                <i class="fas fa-user-circle"></i>
-            </div>
         </div>
     </header>
-    
+
+    <!-- Container Principal -->
     <div class="container">
+        <!-- Sidebar -->
         <nav class="sidebar">
             <a href="index.html" class="sidebar-item active">
                 <i class="fas fa-home"></i>
                 <span>Início</span>
             </a>
+            <a href="#" class="sidebar-item" onclick="showMyVideos()">
+                <i class="fas fa-video"></i>
+                <span>Meus Vídeos</span>
+            </a>
             <a href="#" class="sidebar-item">
                 <i class="fas fa-fire"></i>
-                <span>Em alta</span>
-            </a>
-            <a href="#" class="sidebar-item" id="myVideosBtn">
-                <i class="fas fa-film"></i>
-                <span>Meus vídeos</span>
+                <span>Populares</span>
             </a>
             <a href="#" class="sidebar-item">
-                <i class="fas fa-heart"></i>
-                <span>Favoritos</span>
-            </a>
-            <a href="#" class="sidebar-item">
-                <i class="fas fa-clock"></i>
-                <span>Assistir mais tarde</span>
+                <i class="fas fa-history"></i>
+                <span>Histórico</span>
             </a>
         </nav>
-        
+
+        <!-- Conteúdo Principal -->
         <main class="main-content">
-            <div class="content-header">
-                <h2>Vídeos em Destaque</h2>
-                <div class="filter-options">
-                    <button class="filter-btn active">Todos</button>
-                    <button class="filter-btn">Mais recentes</button>
-                    <button class="filter-btn">Mais vistos</button>
-                </div>
-            </div>
+            <h2>Vídeos Disponíveis</h2>
+            <p class="subtitle">Clique em qualquer vídeo para assistir</p>
             
-            <div class="video-grid" id="videoGrid">
-                <!-- Vídeos carregados via JavaScript -->
+            <div id="videoContainer" class="video-grid">
+                <!-- Vídeos serão carregados aqui -->
             </div>
-            
-            <div class="empty-state" id="emptyState" style="display: none;">
+
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando vídeos...</p>
+            </div>
+
+            <div id="noVideos" class="no-videos" style="display: none;">
                 <i class="fas fa-video-slash"></i>
                 <h3>Nenhum vídeo encontrado</h3>
-                <p>Tente buscar por outros termos ou faça upload de um novo vídeo</p>
                 <button class="btn-primary" onclick="window.location.href='upload.html'">
-                    <i class="fas fa-upload"></i> Upload de Vídeo
+                    <i class="fas fa-plus"></i> Adicionar Primeiro Vídeo
                 </button>
             </div>
         </main>
     </div>
-    
+
+    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-logo">
-                <i class="fab fa-youtube"></i>
-                <span>Meu YouTube Pessoal</span>
-            </div>
-            <p>© 2024 Site de Vídeos Pessoal. Hospedado no GitHub Pages.</p>
-            <p class="footer-note">
-                <i class="fas fa-info-circle"></i>
-                Este é um site estático demonstrativo. Os vídeos usam links externos.
-            </p>
-        </div>
+        <p>© 2024 Meu Site de Vídeos | Hospedado no GitHub Pages</p>
+        <p class="footer-note">
+            <i class="fas fa-info-circle"></i> 
+            Para vídeos funcionarem: use links do YouTube (embed) ou vídeos hospedados
+        </p>
     </footer>
-    
+
+    <!-- Scripts -->
     <script src="script.js"></script>
+    <script>
+        // Carregar vídeos quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVideos();
+        });
+    </script>
 </body>
 </html>
