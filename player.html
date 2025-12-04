@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player de Vídeo - Meu YouTube Pessoal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="window.location.href='index.html'">
+            <i class="fab fa-youtube"></i>
+            <span>Meu Vídeo Channel</span>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" placeholder="Pesquisar vídeos...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        
+        <div class="user-actions">
+            <button class="upload-btn" onclick="window.location.href='upload.html'">
+                <i class="fas fa-upload"></i>
+                <span>Upload</span>
+            </button>
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="player-container">
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            
+            <div class="video-player" id="mainVideo">
+                <!-- O vídeo será carregado aqui via JavaScript -->
+            </div>
+            
+            <div class="video-details">
+                <h1 id="videoTitle">Carregando título...</h1>
+                <div class="video-stats">
+                    <span id="videoViews">0 visualizações</span>
+                    <span id="videoDate">Data desconhecida</span>
+                </div>
+                <p class="video-description" id="videoDescription">Carregando descrição...</p>
+            </div>
+            
+            <div class="related-videos">
+                <h2>Vídeos Relacionados</h2>
+                <div class="video-grid" id="relatedVideos">
+                    <!-- Vídeos relacionados serão carregados aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fab fa-youtube"></i>
+                <span>Meu YouTube Pessoal</span>
+            </div>
+            <p>© 2024 Site de Vídeos Pessoal. Hospedado no GitHub Pages.</p>
+        </div>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
