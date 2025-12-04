@@ -1,3 +1,36 @@
+// Adicione esta função no início do script.js
+function processVideoUrl(url) {
+    // Se for um link do Google Drive
+    if (url.includes('drive.google.com')) {
+        // Extrair o ID do arquivo
+        const match = url.match(/\/d\/([^\/]+)/);
+        if (match && match[1]) {
+            return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+        }
+    }
+    return url;
+}
+
+// Modifique a função initUploadPage (ou onde processa uploads):
+function initUploadPage() {
+    const uploadForm = document.getElementById('uploadForm');
+    const successMessage = document.getElementById('successMessage');
+    
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const category = document.getElementById('category').value;
+        const thumbnail = document.getElementById('thumbnail').value || 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+        let videoUrl = document.getElementById('videoUrl').value;
+        
+        // Processar URL do Google Drive
+        videoUrl = processVideoUrl(videoUrl);
+        
+        // Resto do código permanece o mesmo...
+    });
+}
 // Dados dos vídeos (simulando um banco de dados)
 let videos = [
     {
