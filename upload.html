@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload de Vídeo - Meu YouTube Pessoal</title>
+    <title>Upload de Vídeo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
         <div class="logo" onclick="window.location.href='index.html'">
-            <i class="fab fa-youtube"></i>
-            <span>Meu Vídeo Channel</span>
+            <i class="fas fa-play-circle"></i>
+            <span>MeuVideoSite</span>
         </div>
         
         <div class="user-actions">
@@ -19,84 +19,62 @@
                 <i class="fas fa-home"></i>
                 <span>Início</span>
             </button>
-            <div class="user-avatar">
-                <i class="fas fa-user-circle"></i>
-            </div>
         </div>
     </header>
-    
-    <div class="container">
-        <div class="upload-container">
-            <h1><i class="fas fa-upload"></i> Upload de Vídeo</h1>
-            <p class="upload-subtitle">Adicione um novo vídeo à sua biblioteca pessoal</p>
-            
-            <div class="success-message" id="successMessage"></div>
-            
-            <form class="upload-form" id="uploadForm">
-                <div class="form-group">
-                    <label for="title"><i class="fas fa-heading"></i> Título do Vídeo *</label>
-                    <input type="text" id="title" required placeholder="Digite um título atraente para seu vídeo">
-                </div>
-                
-                <div class="form-group">
-                    <label for="description"><i class="fas fa-align-left"></i> Descrição *</label>
-                    <textarea id="description" required placeholder="Descreva o conteúdo do seu vídeo"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label for="category"><i class="fas fa-tag"></i> Categoria</label>
-                    <select id="category">
-                        <option value="Tutorial">Tutorial</option>
-                        <option value="Entretenimento">Entretenimento</option>
-                        <option value="Educação">Educação</option>
-                        <option value="Música">Música</option>
-                        <option value="Games">Games</option>
-                        <option value="Outros">Outros</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="thumbnail"><i class="fas fa-image"></i> Thumbnail (URL da imagem)</label>
-                    <input type="text" id="thumbnail" placeholder="https://exemplo.com/minha-imagem.jpg">
-                    <small>Deixe em branco para usar uma imagem padrão</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="videoUrl"><i class="fas fa-link"></i> URL do Vídeo *</label>
-                    <input type="text" id="videoUrl" required placeholder="https://youtube.com/embed/... ou https://exemplo.com/meu-video.mp4">
-                    <small>Use links do YouTube (embed), Vimeo ou diretos para arquivos MP4</small>
-                </div>
-                
-                <div class="upload-note">
-                    <p><i class="fas fa-info-circle"></i> <strong>Nota importante:</strong> O GitHub Pages é um serviço de hospedagem estática. Os vídeos precisam estar hospedados em outro serviço (YouTube, Vimeo, Google Drive, etc.) e você deve usar o link aqui.</p>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" id="cancelBtn">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-upload"></i> Publicar Vídeo
-                    </button>
-                </div>
-            </form>
+
+    <div class="upload-page">
+        <h1><i class="fas fa-cloud-upload-alt"></i> Upload de Vídeo</h1>
+        <p>Adicione um novo vídeo à sua biblioteca pessoal</p>
+        
+        <div class="success-message" id="successMessage"></div>
+        
+        <div class="url-help">
+            <h4><i class="fas fa-question-circle"></i> Como obter links de vídeo:</h4>
+            <ul>
+                <li><strong>YouTube:</strong> Use o link do vídeo (ex: https://youtube.com/watch?v=ABCD1234)</li>
+                <li><strong>Google Drive:</strong> Compartilhe o vídeo como "Qualquer pessoa com o link" e cole o link aqui</li>
+                <li><strong>Outros:</strong> Use links diretos para arquivos .mp4</li>
+            </ul>
+            <p><strong>Exemplo YouTube:</strong> <code>https://www.youtube.com/watch?v=dQw4w9WgXcQ</code></p>
         </div>
-    </div>
-    
-    <footer>
-        <div class="footer-content">
-            <div class="footer-logo">
-                <i class="fab fa-youtube"></i>
-                <span>Meu YouTube Pessoal</span>
+        
+        <form class="upload-form" id="uploadForm">
+            <div class="form-group">
+                <label for="videoTitle">Título do Vídeo *</label>
+                <input type="text" id="videoTitle" required placeholder="Digite um título descritivo">
             </div>
-            <p>© 2024 Site de Vídeos Pessoal. Hospedado no GitHub Pages.</p>
-            <p class="footer-note">
-                <i class="fas fa-info-circle"></i>
-                Este site usa localStorage para armazenar seus vídeos. Eles ficam salvos apenas no seu navegador.
-            </p>
-        </div>
-    </footer>
-    
-    <script src="script.js"></script>
-</body>
-</html>
+            
+            <div class="form-group">
+                <label for="videoDescription">Descrição</label>
+                <textarea id="videoDescription" placeholder="Descreva o conteúdo do vídeo..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="videoCategory">Categoria</label>
+                <select id="videoCategory">
+                    <option value="Tutorial">Tutorial</option>
+                    <option value="Entretenimento">Entretenimento</option>
+                    <option value="Educação">Educação</option>
+                    <option value="Música">Música</option>
+                    <option value="Games">Games</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="videoThumbnail">Thumbnail (URL da imagem)</label>
+                <input type="text" id="videoThumbnail" placeholder="https://exemplo.com/imagem.jpg">
+                <small>Opcional. Deixe em branco para usar imagem padrão.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="videoUrl">URL do Vídeo *</label>
+                <input type="text" id="videoUrl" required placeholder="https://youtube.com/watch?v=... ou https://drive.google.com/...">
+                <small>Cole o link do YouTube, Google Drive ou link direto para arquivo de vídeo.</small>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="window.location.href='index.html'">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-primary">
